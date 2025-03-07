@@ -112,7 +112,7 @@ class RAYVERB_AddonPreferences(bpy.types.AddonPreferences):
         name="Data output location",
         description="File path for measured data, in CSV format",
         default="",
-        subtype='FILE_PATH'
+        subtype='DIR_PATH'
     )#type:ignore
 
     def draw(self, context):
