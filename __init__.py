@@ -27,6 +27,14 @@ def run_add_data(self, context):
 def run_compile_data(self, context):
     with open(os.path.join(os.path.dirname(__file__), "csv recompile to wav blender.py")) as f:
         exec(f.read())
+    
+def run_increment_data(self,context):
+    with open(os.path.join(os.path.dirname(__file__), "increment_data.py")) as f:
+        exec(f.read())
+
+def run_visualize_receiver_data(self,context):
+    with open(os.path.join(os.path.dirname(__file__), "visualize_receiver_data.py")) as f:
+        exec(f.read())
 
 def register_properties():
     bpy.types.Scene.RAYVERB_ray_amount = bpy.props.IntProperty(
@@ -144,6 +152,14 @@ class SCRIPT_start_raysim(bpy.types.Operator):
         run_raysim(self, context)
         return {'FINISHED'}
     
+class SCRIPT_increment_data(bpy.types.Operator):
+    bl_idname = "script.increment_data"
+    bl_label = "Increment Data"
+
+    def execute(self, context):
+        run_increment_data(self, context)
+        return {'FINISHED'}
+    
 class SCRIPT_add_data(bpy.types.Operator):
     bl_idname = "script.add_data"
     bl_label = "Add color data to selected."
@@ -160,6 +176,14 @@ class SCRIPT_recompile_data(bpy.types.Operator):
 
     def execute(self, context):
         run_compile_data(self, context)
+        return {'FINISHED'}
+
+class SCRIPT_visualize_reciever_data(bpy.types.Operator):
+    bl_idname = "script.visualize_receiver_data"
+    bl_label = "The funky stuff."
+
+    def execute(self, context):
+        run_visualize_receiver_data(self, context)
         return {'FINISHED'}
 
 class RAYVERB_export_panel(bpy.types.Panel):
@@ -189,6 +213,9 @@ class RAYVERB_export_panel(bpy.types.Panel):
         direct_row.label(text="Direct rays:")
         direct_row.prop(scene, "RAYVERB_direct_rays", text="")
         layout.separator()
+        extrarow = layout.row()
+        extrarow.operator("script.visualize_receiver_data", text="Visualize Data")
+        layout.separator()
         layout.separator()
         export_start_box = layout.box()
         export_start_box_inthebox = export_start_box.box()
@@ -211,6 +238,9 @@ class RAYVERB_main_panel(bpy.types.Panel):
         row = layout.row()
         row.operator("script.createemitter", text="Create Emitter", icon='LIGHT')
         row.operator("script.createreciever", text="Create Receiver", icon='CAMERA_DATA')
+        extrarow = layout.row()
+        extrarow.operator("script.increment_data", text="Increment Reciever ID")
+
 
         layout.separator()
         ray_settings_box = layout.box()
@@ -249,6 +279,8 @@ classes = [
     RAYVERB_main_panel,
     RAYVERB_export_panel,
     SCRIPT_add_data,
+    SCRIPT_increment_data,
+    SCRIPT_visualize_reciever_data,
     SCRIPT_recompile_data
 ]
 

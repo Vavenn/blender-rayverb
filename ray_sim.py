@@ -63,7 +63,6 @@ def generate_uniform_vectors(n,rand,is_rand_on,thckness):
     return vectors
 
 def clear_debug_lines():
-    """ Clears all previously drawn debug lines in the scene. """
     if "Ray_Debug_Lines" in bpy.data.collections:
         debug_collection = bpy.data.collections["Ray_Debug_Lines"]
         for obj in list(debug_collection.objects):
@@ -77,7 +76,6 @@ def launch_rays(scene, origin, angles, max_refr_bounces, energy_threshold,invers
         import random
         def draw_debug_line(start, end, hit_receiver=False):
 
-            """ Draws a line in Blender to visualize the ray path. """
             if "Ray_Debug_Lines" not in bpy.data.collections:
                 debug_collection = bpy.data.collections.new("Ray_Debug_Lines")
                 bpy.context.scene.collection.children.link(debug_collection)
@@ -104,7 +102,6 @@ def launch_rays(scene, origin, angles, max_refr_bounces, energy_threshold,invers
 
         def get_material_properties(obj):
 
-            """ Extracts material properties from the 'rayerb_data' color attribute. """
             default_reflection = 0.97
             default_transmission = 0.15
             default_randomness = 0.0
@@ -122,7 +119,6 @@ def launch_rays(scene, origin, angles, max_refr_bounces, energy_threshold,invers
             import mathutils # type:ignore
             import math
             import random
-            """ Applies a small random perturbation to a direction vector. """
             if randomness > 0:
                 max_angle = randomness * 0.1 * math.pi  # ±10% variation in angle
                 angle_x = random.uniform(-max_angle, max_angle)
@@ -137,7 +133,6 @@ def launch_rays(scene, origin, angles, max_refr_bounces, energy_threshold,invers
 
         def compute_refraction_direction(direction, normal, obj, randomness):
             import math
-            """ Computes the refraction direction using Snell’s Law and applies randomness. """
             ior = obj.get("ior", 1.5)  # Default IOR if not specified
             cosi = max(-1.0, min(1.0, direction.dot(normal)))  # Clamped cosine
             entering = cosi < 0  # True if entering material
@@ -153,7 +148,6 @@ def launch_rays(scene, origin, angles, max_refr_bounces, energy_threshold,invers
             refracted_dir = eta * direction + (eta * cosi - math.sqrt(k)) * normal
             return add_randomness(refracted_dir.normalized(), randomness)
 
-        """ Recursively trace a ray, handling reflections and refractions. """
         if abs(energy) < energy_threshold:
             return
 
@@ -170,6 +164,7 @@ def launch_rays(scene, origin, angles, max_refr_bounces, energy_threshold,invers
 
         receiver_id = hit_object.get("is_sound_receiver")
         if receiver_id is not None:
+            #print(receiver_id)
             if is_direct: receiver_id = -int(receiver_id) 
             results.append((distance, energy, int(receiver_id)))
             if debug:
@@ -274,7 +269,7 @@ if not exit:
     file_out = data_output_path+"Rayverb Data.csv"
     file_header = ""
     for label in labels:
-        file_header += ";" + label
+        file_header += ";" + str(label)
 
     with open(file_out, "w") as out_file:
         np.savetxt(out_file, ray_results, delimiter=';', fmt='%.6f', comments='', header=file_header) 

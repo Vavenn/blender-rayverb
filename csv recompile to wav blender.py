@@ -79,14 +79,6 @@ def export_amplitude_to_wav(amplitudes, filename, sample_rate=44100, num_channel
         wf.writeframes(struct.pack(f'{len(amplitudes_int16)}h', *amplitudes_int16))
     print(f"File saved: {filename}")
 
-def remove_second_dot(number_str):
-    if number_str.count('.') > 1:
-        first_part, second_part = number_str.split('.', 1)
-        cleaned_number = float(first_part + '.' + second_part.replace('.', '', 1))
-    else:
-        cleaned_number = str(number_str)
-    return cleaned_number
-
 def parse_csv(file_path):
     import csv
     column1, column2, column3 = [], [], []
@@ -145,10 +137,28 @@ if True:
     max_lenght = scene.RAYVERB_length_max
     samplerate = scene.RAYVERB_samplerate
 
-
+    normalize_shite = False
 
     
     output_file = file_dir+scene.RAYVERB_output_filename+"_"
+    global_max_energy = 0
+    if not normalize_shite:
+        for ch in range(1, CHANNELS + 1):
+            wave_buffers = [0]
+            ch_time = []
+            for i in range(len(Channel)):
+                if Channel[i] == ch:
+                    ch_time.append(Time[i])
+            ch_energy = []
+            for i in range(len(Channel)):
+                if Channel[i] == ch:
+                    ch_energy.append(Energy[i])
+            if not len(ch_time) == 0:
+                wave_buffers, max_energy = array_magic(ch_time, ch_energy, 1/samplerate, samplerate*max_lenght)
+            else:
+                max_energy = 0
+            if max_energy > global_max_energy: global_max_energy = max_energy
+
 
 
     for ch in range(1, CHANNELS + 1):
@@ -163,10 +173,15 @@ if True:
                 ch_energy.append(Energy[i])
         if not len(ch_time) == 0:
             wave_buffers, max_energy = array_magic(ch_time, ch_energy, 1/samplerate, samplerate*max_lenght)
+        else:
+            max_energy = 1
         if max_energy != 0:
             i = 0
             for x in wave_buffers: 
-                wave_buffers[i] = wave_buffers[i]/max_energy
+                if normalize_shite:
+                    wave_buffers[i] = wave_buffers[i]/max_energy
+                else:
+                    wave_buffers[i] = wave_buffers[i]/global_max_energy
                 i += 1
         else:
             wave_buffers = [0]
